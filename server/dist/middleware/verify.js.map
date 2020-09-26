@@ -1,0 +1,1 @@
+{"version":3,"file":"verify.js","sourceRoot":"","sources":["../../src/middleware/verify.ts"],"names":[],"mappings":";;;AAEa,QAAA,eAAe,GAAG,CAAC,GAAY,EAAE,GAAa,EAAE,IAAkB,EAAE,EAAE;IAE/E,IAAI,GAAG,CAAC,IAAI,EAAE;QACV,IAAI,EAAE,CAAC;KACV;SAAM;QACH,GAAG,CAAC,MAAM,CAAC,GAAG,CAAC,CAAC,IAAI,CAAC,cAAc,CAAC,CAAC;KACxC;AACL,CAAC,CAAA"}
