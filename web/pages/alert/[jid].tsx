@@ -14,7 +14,15 @@ import {
   NumberInputStepper,
   NumberIncrementStepper,
   NumberDecrementStepper,
-  Select
+  Modal,
+  ModalBody,
+  ModalContent,
+  ModalFooter,
+  ModalHeader,
+  ModalOverlay,
+  Text,
+  Select,
+  useDisclosure
 } from "@chakra-ui/core";
 import axios from '../../utils/axios'
 import Header from '../../components/header'
@@ -28,6 +36,7 @@ interface Job {
 }
 
 const Show: NextPage<Job> = ({ job }) => {
+  const { onClose } = useDisclosure();
   const { handleSubmit, errors, register, formState } = useForm();
   const router = useRouter();
   const jid = router.query.jid
@@ -84,8 +93,11 @@ const Show: NextPage<Job> = ({ job }) => {
   }
 
     return (
-        <>
-            <Header></Header>
+      <>
+
+        <Header></Header>
+        {job.length !== 0 ? 
+          <>
             <Box mt={8} mx='auto' maxW={"500px"} w={"100%"} mb={8}>
                 <NextLink href="/home">
                     <Link>Back</Link>
@@ -150,27 +162,61 @@ const Show: NextPage<Job> = ({ job }) => {
         isLoading={formState.isSubmitting}
         type="submit"
       >
-        Submit
+                Submit
       </Button>
           </form>
       </Box>
+          </>
+          : 
+          <>
+             <Modal closeOnOverlayClick={false} isOpen={true} onClose={onClose}>
+              <ModalOverlay />
+              <ModalContent>
+                <ModalHeader>Unauthorized!</ModalHeader>
+                <ModalBody pb={6}>
+                  <Text>Please Log in to continue</Text>
+                </ModalBody>
+      
+                  <ModalFooter>
+                    <NextLink href="/login">
+                  <Button mr={3} as={Link}>
+                        Login
+                  </Button>
+                    </NextLink>
+                    <NextLink href="/register">
+                  <Button mr={3} as={Link}>
+                        Register
+                  </Button>
+                  </NextLink>
+                </ModalFooter>
+              </ModalContent>
+            </Modal>
+            </>
+    }
         </>
   );
 }
 
 Show.getInitialProps = async (ctx: any) => {
-  const response = await axios({
-    method: 'get',
-    url: `/v1/jobs/${ctx.query.jid}`,
-    headers: ctx.req ? {
-      cookie: ctx.req.headers.cookie,
-      'Content-Type': 'application/json',
-    } : undefined,
-    withCredentials: true,
-  })
-  return {
-    job: response.data
-} 
-}
+  try {
+    const response = await axios({
+      method: 'get',
+      url: `/v1/jobs/${ctx.query.jid}`,
+      headers: ctx.req ? {
+        cookie: ctx.req.headers.cookie,
+        'Content-Type': 'application/json',
+      } : undefined,
+      withCredentials: true,
+    })
+    return {
+      job: response.data
+    }
+  } catch (error) {
+    return {
+      job: []
+    }
+  };
+    
+};
 
 export default Show

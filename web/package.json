@@ -2,7 +2,7 @@
   "name": "costify-web",
   "version": "1.0.0",
   "scripts": {
-    "dev": "next",
+    "dev": "next -p 4001",
     "build": "next build",
     "start": "next start",
     "type-check": "tsc"

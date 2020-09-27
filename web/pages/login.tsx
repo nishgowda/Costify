@@ -1,5 +1,5 @@
 import { useForm } from "react-hook-form";
-import React, { useContext, useEffect } from "react";
+import React, { useContext, useEffect, useState } from "react";
 import {useRouter } from 'next/router'
 import {
   FormErrorMessage,
@@ -8,7 +8,9 @@ import {
   Input,
   Button,
     Box,
-    Heading, Link
+  Heading,
+  Link,
+
 } from "@chakra-ui/core";
 import NextLink from 'next/link'
 import axios from '../utils/axios'
@@ -20,7 +22,7 @@ import {UserContext } from '../utils/me'
   const { handleSubmit, errors, register, formState } = useForm();
    const user = useContext(UserContext);
     const router = useRouter();
-
+  
    
    useEffect(() => {
      if (user.auth === true) {
@@ -96,11 +98,11 @@ import {UserContext } from '../utils/me'
                   <Link>Dont have an account? Click here to Register</Link>
                 </NextLink>
           </Box>
-        
+
       <Button
         mt={2}
         variantColor="blue"
-        isLoading={formState.isSubmitting}
+            isLoading={formState.isSubmitting}
         type="submit"
       >
         Login

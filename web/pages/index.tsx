@@ -12,20 +12,20 @@ const IndexPage: NextPage = () => {
       <FadeIn>
         <Flex mt={8} align="center">
             <Box mt={3} mx='auto'>
-          <Heading  size="2xl">
+          <Text  fontSize="6xl" fontWeight="bold">
                 Price Tracking made easy.
-         </Heading> 
+         </Text> 
           </Box>
           </Flex>
           <Flex mt={8} align="center">
             <Box mt={3} mx='auto'>
          <Text fontSize="3xl">
-              Letting you know when your favorite items 
+             Costify lets you know when your favorite items 
               are on sale.
          </Text>
           </Box>
       </Flex>
-      <Box mt={8} mx='auto' maxW={"500px"} w={"100%"}>
+      <Box mt={8} mx='auto' maxW={"500px"} w={"100%"} mb={20}>
         <Flex align="center">
           <NextLink href="/login">
             <Button mx='auto' size="lg" variantColor="orange" variant="solid">Login</Button>
@@ -36,14 +36,11 @@ const IndexPage: NextPage = () => {
 
         </Flex>
             
-        <Box mt={8} maxW={"500px"} w={"100%"} mb={8}>
-              <Image src='/Example.gif' alt='example' objectFit='contain' ></Image>
-            </Box>
         </Box>
 
 
         <Divider />
-        <Flex align="center" mt={10}>
+        <Flex align="center" mt={8}>
           <Box mx='auto'>
           <Text fontSize="3xl">
               Supported Websites
@@ -70,7 +67,19 @@ const IndexPage: NextPage = () => {
               </Box>
             </Grid>
           </Box>
-          </Flex>
+        </Flex>
+        <Divider />
+        <Flex mt={8} align="center">
+          <Box mx='auto'>
+            <Text fontWeight="bold" fontSize="4xl">Create alerts easily</Text>
+          </Box>
+          <Box mx='auto'>
+              <Image src='/Example.gif' alt='example' objectFit='contain' ></Image>
+          </Box>
+        </Flex>
+        
+        <Divider />
+ 
         </FadeIn>
     </>
   );

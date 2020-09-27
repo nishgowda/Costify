@@ -13,11 +13,13 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 const express_1 = __importDefault(require("express"));
+const constants_1 = require("../constants");
 const cors_1 = __importDefault(require("cors"));
+require('dotenv').config();
 const app = express_1.default();
 app.use(express_1.default.json());
 app.use(cors_1.default({
-    origin: "http://localhost:3000",
+    origin: constants_1.__prod__ == true ? process.env.FRONT_END_URL : "http://localhost:4001",
     credentials: true
 }));
 const db_1 = __importDefault(require("../utils/db"));
@@ -25,12 +27,11 @@ const passport_1 = __importDefault(require("passport"));
 const redis_1 = __importDefault(require("redis"));
 const express_session_1 = __importDefault(require("express-session"));
 const RedisStore = require('connect-redis')(express_session_1.default);
-const redisClient = redis_1.default.createClient();
+const redisClient = constants_1.__prod__ === true ? redis_1.default.createClient({ url: process.env.REDIS_URL }) : redis_1.default.createClient();
 require('./pass');
-require('dotenv').config();
 module.exports = (app) => {
     app.use(express_session_1.default({
-        name: 'access-token',
+        name: process.env.COOKIE_NAME,
         store: new RedisStore({
             client: redisClient,
             disableTouch: true
@@ -39,7 +40,7 @@ module.exports = (app) => {
             maxAge: 1000 * 60 * 60 * 24 * 7,
             httpOnly: true,
             sameSite: 'lax',
-            secure: false,
+            secure: constants_1.__prod__ === true ? true : false,
         },
         secret: process.env.SESSION_SECRET || 'blah',
         resave: false,
@@ -60,9 +61,8 @@ module.exports = (app) => {
             throw error;
         }
     }));
-    app.post('/login', passport_1.default.authenticate('login', { failureMessage: "Failed to Login" }), (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    app.post('/login', passport_1.default.authenticate('login', { failureMessage: "Failed to Login" }), (_, res) => __awaiter(void 0, void 0, void 0, function* () {
         try {
-            console.log(req.user);
             res.status(200).send("Authorized");
         }
         catch (error) {
@@ -71,7 +71,7 @@ module.exports = (app) => {
     }));
     app.get('/logout', (req, res) => {
         req.session = undefined;
-        res.clearCookie('access-token', { httpOnly: true, sameSite: 'lax', });
+        res.clearCookie(process.env.COOKIE_NAME || 'sid', { httpOnly: true, sameSite: 'lax', });
         req.logout();
         res.status(200).send('Logged Out');
     });

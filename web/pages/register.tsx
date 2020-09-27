@@ -1,5 +1,5 @@
 import { useForm } from "react-hook-form";
-import React, { useContext, useEffect } from "react";
+import React, { useContext, useEffect, useState } from "react";
 import { useRouter } from 'next/router'
 import {
   FormErrorMessage,
@@ -9,7 +9,9 @@ import {
   Button,
   Box,
   Heading,
-  Link
+  Link,
+  Radio,
+  RadioGroup
 } from "@chakra-ui/core";
 import axios from '../utils/axios'
 import NextLink from 'next/link'
@@ -19,7 +21,10 @@ import {UserContext } from '../utils/me'
  const Register: NextPage = () => {
   const { handleSubmit, errors, register, formState } = useForm();
   const user = useContext(UserContext);
-  const router = useRouter();
+   const router = useRouter();
+   const [notify, setNotify] = React.useState("Accept");
+   const [disabled, setDisabled] = useState(false);
+
   useEffect(() => {
     if (user.auth === true) {
       router.push('/home');
@@ -62,6 +67,15 @@ import {UserContext } from '../utils/me'
       console.log(err);
     })
   }
+
+  useEffect(() => {
+    if (notify === "true") {
+      setDisabled(false)
+    } else {
+      setDisabled(true)
+    }
+  })
+
 
   return (
     <>
@@ -111,10 +125,15 @@ import {UserContext } from '../utils/me'
                   <Link>Already have an account? Click here to Log in</Link>
                 </NextLink>
           </Box>
+          <RadioGroup onChange={e => setNotify(e.target.value)} value={notify}>
+            <Radio value={"true"}>Agree</Radio>
+            <Radio value={"false"}>No</Radio>
+            </RadioGroup>
       <Button
         mt={4}
         variantColor="blue"
-        isLoading={formState.isSubmitting}
+            isLoading={formState.isSubmitting}
+            isDisabled={disabled}
         type="submit"
       >
           Register

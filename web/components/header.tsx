@@ -23,9 +23,9 @@ const Header = () => {
     return (
         <Flex zIndex={1} position="relative" bg="orange.200" top={0} p={4}>
       <Flex flex={1} m="auto" align="center" maxW={1200}>
-        <NextLink href="/" >
+        <NextLink href="/home" >
           <Link>
-                        <Image src='/Costify-Logo.png' alt="logo" size="15%" objectFit="contain"></Image>
+                        <Image src='/Costify-Logo.png' alt="logo" size="10%" objectFit="contain"></Image>
                     </Link>
             </NextLink>
             

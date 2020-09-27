@@ -1,11 +1,13 @@
 import express from 'express';
 import { Request, Response, Application } from 'express';
 import { CostifyUser } from '../types/User'
+import { __prod__} from '../constants' 
 import cors from 'cors';
+require('dotenv').config();
 const app = express();
 app.use(express.json());
 app.use(cors({
-    origin: "http://localhost:3000",
+    origin: __prod__ == true ? process.env.FRONT_END_URL : "http://localhost:4001",
     credentials: true
 }));
 import client from '../utils/db';
@@ -13,15 +15,15 @@ import passport from 'passport';
 import redis from 'redis';
 import session from 'express-session';
 const RedisStore = require('connect-redis')(session)
-const redisClient = redis.createClient()
+const redisClient = __prod__ === true ? redis.createClient({ url: process.env.REDIS_URL }) : redis.createClient();
 require('./pass');
-require('dotenv').config();
+
 
 
 module.exports =  (app: Application) => {
     app.use(
         session({
-           name: 'access-token',
+           name: process.env.COOKIE_NAME,
             store: new RedisStore({
                 client: redisClient,
                 disableTouch: true
@@ -30,7 +32,7 @@ module.exports =  (app: Application) => {
                 maxAge: 1000 * 60 * 60 * 24 * 7, // One week
                 httpOnly: true,
                 sameSite: 'lax',
-                secure: false, //cookie only works in https
+                secure: __prod__ === true ? true :  false, //cookie only works in https
             },
             secret: process.env.SESSION_SECRET || 'blah',
             resave: false,
@@ -53,9 +55,8 @@ module.exports =  (app: Application) => {
             throw error;
         }
     })
-    app.post('/login', passport.authenticate('login', { failureMessage: "Failed to Login" }), async (req: Request, res: Response) => {
+    app.post('/login', passport.authenticate('login', { failureMessage: "Failed to Login" }), async (_: Request, res: Response) => {
         try {
-            console.log(req.user)
             res.status(200).send("Authorized");
         } catch (error) {
             throw error;
@@ -64,7 +65,7 @@ module.exports =  (app: Application) => {
     
     app.get('/logout', (req:Request , res: Response) => {
         req.session = undefined;
-        res.clearCookie('access-token', {httpOnly: true, sameSite: 'lax',})
+        res.clearCookie(process.env.COOKIE_NAME || 'sid', {httpOnly: true, sameSite: 'lax',})
         req.logout();
         res.status(200).send('Logged Out')
     })

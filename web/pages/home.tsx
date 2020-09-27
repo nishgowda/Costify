@@ -55,13 +55,13 @@ const Home: NextPage<Jobs> = ({ jobs }) => {
             <Button mx='auto' leftIcon="add" variantColor="blue">Create an Alert</Button>
             </NextLink>
         </Flex>
-        {jobs !== undefined ?
+        {jobs.length !== 0 ?
           <Stack spacing={8}>
             {jobs.slice(0, page * itemsPerPage).map((item: Alert) => (
               <Box mt={3} key={item.jid} p={5} shadow="md" borderWidth="1px">
                 <Flex align="center">
                 <Heading fontSize="xl" mt={3} mr='auto'>
-                  <NextLink href="/job/[jid]" as={"/job/" + item.jid}>
+                  <NextLink href="/alert/[jid]" as={"/alert/" + item.jid}>
                                 <Link>
                           {item.product.length > 40 ?  item.product.substring(0, 40) + '...' : item.product}
                     </Link>
@@ -124,18 +124,26 @@ const Home: NextPage<Jobs> = ({ jobs }) => {
   )
 }
 Home.getInitialProps = async (ctx: any) => {
+  try {
     const response = await axios({
-        method: 'get',
-        url: '/v1/me/jobs',
-        headers: ctx.req ? {
-            cookie: ctx.req.headers.cookie,
-            'Content-Type': 'application/json',
-        } : undefined,
-        withCredentials: true,
+      method: 'get',
+      url: '/v1/me/jobs',
+      headers: ctx.req ? {
+          cookie: ctx.req.headers.cookie,
+          'Content-Type': 'application/json',
+      } : undefined,
+      withCredentials: true,
     })
-        return {
-            jobs: response.data
-        } 
+    return {
+      jobs: response.data
+    }
+  } catch (error) {
+    return {
+      jobs: []
+    }
+
+  }
+
         
 };
 
