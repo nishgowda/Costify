@@ -22,13 +22,12 @@ import {
   ModalOverlay,
   IconButton,
 } from '@chakra-ui/core';
-import {Job} from '../types/job'
+import {Alert} from '../types/job'
 import NextLink from 'next/link'
 import { NextPage } from "next";
 
-
 interface Jobs {
-  jobs: Job[]
+  jobs: Alert[]
 }
 
 const Home: NextPage<Jobs> = ({ jobs }) => {
@@ -47,7 +46,6 @@ const Home: NextPage<Jobs> = ({ jobs }) => {
     event.preventDefault();
     setPage(page + 1);
   }
-
   return (
     <>
       <Header></Header>
@@ -59,13 +57,13 @@ const Home: NextPage<Jobs> = ({ jobs }) => {
         </Flex>
         {jobs !== undefined ?
           <Stack spacing={8}>
-            {jobs.slice(0, page * itemsPerPage).map((item: any) => (
+            {jobs.slice(0, page * itemsPerPage).map((item: Alert) => (
               <Box mt={3} key={item.jid} p={5} shadow="md" borderWidth="1px">
                 <Flex align="center">
                 <Heading fontSize="xl" mt={3} mr='auto'>
                   <NextLink href="/job/[jid]" as={"/job/" + item.jid}>
                                 <Link>
-                          {item.product.length > 30 ?  item.product.match(/.{1,30}/g)[0]  + '...' : item.product}
+                          {item.product.length > 40 ?  item.product.substring(0, 40) + '...' : item.product}
                     </Link>
                   </NextLink>
                   </Heading>

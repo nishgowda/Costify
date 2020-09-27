@@ -25,6 +25,8 @@ const Create : NextPage = () => {
   const { handleSubmit, errors, register, formState } = useForm();
     const user = useContext(UserContext)
     const [isUrl, setUrl] = useState(false)
+    const [website, setWebsite] = useState('');
+  
     function validateWebsite(value: string) {
         let error;
         if (!value) {
@@ -40,7 +42,15 @@ const Create : NextPage = () => {
       if (value === 'amazon' || value === 'steam' || value === 'wallmart') {
         setUrl(true)
       }
-        return error || true;
+      const itemsToCheck = ['https://amazon.com/','https://www.amazon.com/', 'https://store.steampowered.com/app/', '.craigslist.org']
+      if (website === 'amazon' || website === 'steam' || 'craigslist') {
+        const items = itemsToCheck.some(item => value.includes(item));
+        console.log(items);
+        if (items === false) {
+          error = 'A proper url for this website is required';
+        }
+      }
+       return error || true;
     }
     function validatePrice(value: number) {
         let error;
@@ -49,7 +59,10 @@ const Create : NextPage = () => {
         } 
         return error || true;
     }
-
+    const handleWebsite = (e: React.ChangeEvent<HTMLSelectElement>) => {
+      e.preventDefault();
+      setWebsite(website)
+    }
     function onSubmit(values: any) {
         values['uid'] = user.uid;
         console.log(values);
@@ -81,7 +94,8 @@ const Create : NextPage = () => {
               <FormLabel htmlFor="website">Website</FormLabel>
               <Select
               name="website"
-              autoComplete="website"
+                autoComplete="website"
+                onChange={handleWebsite}
               ref={register({ validate: validateWebsite })}>
                 <option value="amazon">Amazon</option>
                 <option value="godaddy">Godaddy</option>
@@ -93,7 +107,7 @@ const Create : NextPage = () => {
           {errors.website && errors.website.message}
         </FormErrorMessage>
       </FormControl>
-            <FormControl isInvalid={errors.url} mt={3}>
+            <FormControl isInvalid={errors.product} mt={3}>
               {isUrl === false ?
                 <>
         <FormLabel htmlFor="product">Product</FormLabel>
@@ -104,7 +118,7 @@ const Create : NextPage = () => {
           ref={register({ validate: validateProduct })}
         />
         <FormErrorMessage>
-          {errors.url && errors.url.message}
+          {errors.product && errors.product.message}
                   </FormErrorMessage>
                   </>
                 : <>
@@ -116,7 +130,7 @@ const Create : NextPage = () => {
                 ref={register({ validate: validateProduct })}
               />
               <FormErrorMessage>
-                {errors.url && errors.url.message}
+                {errors.product && errors.product.message}
                         </FormErrorMessage>
                   
                   

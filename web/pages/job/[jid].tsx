@@ -1,5 +1,5 @@
 import { useForm } from "react-hook-form";
-import React from "react";
+import React, {useState} from "react";
 import {
   FormErrorMessage,
   FormLabel,
@@ -20,27 +20,42 @@ import axios from '../../utils/axios'
 import Header from '../../components/header'
 import NextLink from 'next/link'
 import { useRouter } from 'next/router'
+import { Alert } from "../../types/job";
+import { NextPage } from "next";
 
+interface Job {
+  job: Alert[]
+}
 
-const Job = ({ job }: any) => {
+const Show: NextPage<Job> = ({ job }) => {
   const { handleSubmit, errors, register, formState } = useForm();
   const router = useRouter();
   const jid = router.query.jid
   const websites = ['amazon', 'godaddy', 'namecheap', 'steam', 'craigslist', 'wallmart']
-  function validateWebsite(value: string) {
+  const [website, setWebsite] = useState('');
+  
+    function validateWebsite(value: string) {
         let error;
         if (!value) {
         error = "Website is required";
-        } 
+        }
         return error || true;
     }
     function validateProduct(value: string) {
-        let error;
+      let error;
+      const itemsToCheck = ['https://amazon.com/', 'https://store.steampowered.com/app/', '.craigslist.org']
         if (!value) {
         error = "Product is required";
-        } 
+        }
+        if (website === 'amazon' || website === 'steam' || 'craigslist') {
+          const items = itemsToCheck.some(item => value.includes(item));
+          if (!items) {
+            error = 'A proper url for this website is required';
+          }
+        }
         return error || true;
     }
+  
     function validatePrice(value: number) {
         let error;
         if (!value) {
@@ -48,6 +63,10 @@ const Job = ({ job }: any) => {
         } 
         return error || true;
     }
+  const handleWebsite = (e: React.ChangeEvent<HTMLSelectElement>) => {
+    e.preventDefault();
+    setWebsite(website)
+  }
 
   function onSubmit(values: any) {
 
@@ -77,13 +96,14 @@ const Job = ({ job }: any) => {
         <FormLabel htmlFor="website">Website</FormLabel>
         <Select
               name="website"
-              autoComplete="website"
+                autoComplete="website"
+                onChange={handleWebsite}
                 ref={register({ validate: validateWebsite })}>
                 {
                   websites.map((site, index) => 
                     <>
                       { site === job[0].website ?
-                        <option defaultValue={job[0].website} key={index} selected>{job[0].website}</option>
+                        <option defaultValue={job[0].website} selected>{job[0].website}</option>
                         :
                         <option  value={site} key={index}>{site}</option>
                       }
@@ -111,7 +131,7 @@ const Job = ({ job }: any) => {
         <NumberInput>
                 <NumberInputField 
                 name="price"
-                placeholder={job[0].price}
+                placeholder={''+job[0].price}
                 type="text"
               ref={register({ validate: validatePrice })}
                 />
@@ -138,7 +158,7 @@ const Job = ({ job }: any) => {
   );
 }
 
-Job.getInitialProps = async (ctx: any) => {
+Show.getInitialProps = async (ctx: any) => {
   const response = await axios({
     method: 'get',
     url: `/v1/jobs/${ctx.query.jid}`,
@@ -148,16 +168,9 @@ Job.getInitialProps = async (ctx: any) => {
     } : undefined,
     withCredentials: true,
   })
-    if (response) {
-        return {
-            job: response.data
-          }
-    } else {
-        return {
-            jobs: []
-        }
-    }
-
+  return {
+    job: response.data
+} 
 }
 
-export default Job
+export default Show

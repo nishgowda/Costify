@@ -5,6 +5,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 Object.defineProperty(exports, "__esModule", { value: true });
 const express_1 = __importDefault(require("express"));
 const cors_1 = __importDefault(require("cors"));
+const cron_1 = require("./jobs/cron");
 const app = express_1.default();
 app.use(express_1.default.json());
 app.use(cors_1.default({
@@ -16,7 +17,6 @@ require('./middleware/routes')(app);
 require('./api/alerts')(app);
 require('./api/users')(app);
 require('dotenv').config();
-const cron_1 = require("./jobs/cron");
 app.listen(4000, () => {
     cron_1.Job.start();
     console.log("Listening");
