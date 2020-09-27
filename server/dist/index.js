@@ -16,5 +16,9 @@ require('./middleware/routes')(app);
 require('./api/alerts')(app);
 require('./api/users')(app);
 require('dotenv').config();
-app.listen(4000, () => 'Listening');
+const cron_1 = require("./jobs/cron");
+app.listen(4000, () => {
+    cron_1.Job.start();
+    console.log("Listening");
+});
 //# sourceMappingURL=index.js.map

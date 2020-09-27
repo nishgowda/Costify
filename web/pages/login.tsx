@@ -1,5 +1,6 @@
 import { useForm } from "react-hook-form";
-import React from "react";
+import React, { useContext, useEffect } from "react";
+import {useRouter } from 'next/router'
 import {
   FormErrorMessage,
   FormLabel,
@@ -10,12 +11,22 @@ import {
     Heading, Link
 } from "@chakra-ui/core";
 import NextLink from 'next/link'
-import Header from '../components/header'
 import axios from '../utils/axios'
+import LandingHeader from  '../components/LandingHeader'
+import { NextPage } from 'next'
+import {UserContext } from '../utils/me'
 
- const Login: React.FC = () => {
+ const Login: NextPage = () => {
   const { handleSubmit, errors, register, formState } = useForm();
+   const user = useContext(UserContext);
+    const router = useRouter();
 
+   
+   useEffect(() => {
+     if (user.auth === true) {
+       router.push('/home');
+     }
+   })
   function validateEmail(value: string) {
     let error;
     if (!value) {
@@ -50,7 +61,7 @@ import axios from '../utils/axios'
 
   return (
     <>
-    <Header></Header>
+    <LandingHeader/>
       <Box mt={8} mx='auto' maxW={"500px"} w={"100%"} mb={8}>
                         <Heading>Login</Heading>
 
@@ -95,7 +106,7 @@ import axios from '../utils/axios'
         Login
       </Button>
           </form>
-      </Box>
+          </Box>
 </>
   );
  }

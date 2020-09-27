@@ -1,5 +1,6 @@
 import express from 'express';
 import cors from 'cors';
+import { Job } from './jobs/cron';
 const app = express();
 app.use(express.json());
 app.use(cors({
@@ -14,5 +15,7 @@ require('dotenv').config();
 
 
 
-
-app.listen(4000, () => 'Listening')
+app.listen(4000, () => {
+    Job.start();
+    console.log("Listening")
+})

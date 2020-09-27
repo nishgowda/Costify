@@ -12,11 +12,14 @@ import {
     Link
 }
 from '@chakra-ui/core'
+import { NextPage } from 'next'
+import FadeIn from 'react-fade-in';
 
-const Faq = () => {
+const Faq: NextPage = () => {
   return ( 
     <>
-        <LandingHeader />
+          <LandingHeader />
+          <FadeIn>
             <Flex mt={8} align="center">
                         <Heading mx='auto'>
                     FAQ
@@ -64,7 +67,8 @@ const Faq = () => {
                 </AccordionItem>
                 </Accordion>
                 </Flex>
-            </Box>
+              </Box>
+              </FadeIn>
       </>
   )
 }

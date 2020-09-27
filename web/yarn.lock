@@ -1325,6 +1325,13 @@
   dependencies:
     "@types/react" "*"
 
+"@types/react-fade-in@^0.1.0":
+  version "0.1.0"
+  resolved "https://registry.yarnpkg.com/@types/react-fade-in/-/react-fade-in-0.1.0.tgz#281367aa13b970762d4020cd4e69b52cfc3bdb3f"
+  integrity sha512-rUbU6MiO2I6itt4RLPeIs83C2J+/KD2p3XKXk816pXdw09DxDlm3U/HeHqjQUUjBS5AaIz1zPmg/0JuZkOCn/w==
+  dependencies:
+    "@types/react" "*"
+
 "@types/react@*", "@types/react@^16.8.10", "@types/react@^16.9.16":
   version "16.9.49"
   resolved "https://registry.yarnpkg.com/@types/react/-/react-16.9.49.tgz#09db021cf8089aba0cdb12a49f8021a69cce4872"
@@ -4418,6 +4425,11 @@ react-dom@^16.12.0:
     object-assign "^4.1.1"
     prop-types "^15.6.2"
     scheduler "^0.19.1"
+
+react-fade-in@^1.1.0:
+  version "1.1.0"
+  resolved "https://registry.yarnpkg.com/react-fade-in/-/react-fade-in-1.1.0.tgz#82272eba4ae5843fed333e2c7f74dc5dbdab3864"
+  integrity sha512-sR36bwyimCRapcHEuEjbQkQzUuCh3BIOeQvrUc9X4HBN6nswZ3nuq1Zb0vh3lG1Xx2ZMduGMw8u4AwNGbHkI0g==
 
 react-focus-lock@^2.2.1:
   version "2.4.1"

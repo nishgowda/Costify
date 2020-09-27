@@ -21,11 +21,19 @@ import {
   ModalHeader,
   ModalOverlay,
   IconButton,
-} from '@chakra-ui/core'
+} from '@chakra-ui/core';
+import {Job} from '../types/job'
 import NextLink from 'next/link'
+import { NextPage } from "next";
 
-const Home = ({ jobs }: any) => {
-    const { onClose } = useDisclosure();
+
+interface Jobs {
+  jobs: Job[]
+}
+
+const Home: NextPage<Jobs> = ({ jobs }) => {
+   
+  const { onClose } = useDisclosure();
   const [page, setPage] = useState(1)
   const itemsPerPage = 10;
   let noPages
@@ -39,13 +47,7 @@ const Home = ({ jobs }: any) => {
     event.preventDefault();
     setPage(page + 1);
   }
-  
-  const stringSplice = (str: string, size: number) => {
-    if (str == null) return [];
-    str = String(str);
-    size = ~~size;
-    return size > 0 ? str.match(new RegExp('.{1,' + size + '}', 'g')) : [str];
-    }
+
   return (
     <>
       <Header></Header>
@@ -63,7 +65,7 @@ const Home = ({ jobs }: any) => {
                 <Heading fontSize="xl" mt={3} mr='auto'>
                   <NextLink href="/job/[jid]" as={"/job/" + item.jid}>
                                 <Link>
-                          {item.product.length > 25 ? stringSplice(item.product, 20) : item.product}
+                          {item.product.length > 30 ?  item.product.match(/.{1,30}/g)[0]  + '...' : item.product}
                     </Link>
                   </NextLink>
                   </Heading>
@@ -133,7 +135,6 @@ Home.getInitialProps = async (ctx: any) => {
         } : undefined,
         withCredentials: true,
     })
-    console.log('data', response.data);
         return {
             jobs: response.data
         } 

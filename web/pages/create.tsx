@@ -20,8 +20,8 @@ import axios from '../utils/axios'
 import { UserContext } from '../utils/me'
 import Header from '../components/header'
 import NextLink from 'next/link'
-
-export default function Create() {
+import { NextPage } from 'next'
+const Create : NextPage = () => {
   const { handleSubmit, errors, register, formState } = useForm();
     const user = useContext(UserContext)
     const [isUrl, setUrl] = useState(false)
@@ -59,7 +59,7 @@ export default function Create() {
             'Content-Type': 'application/json',
         },
         withCredentials: true,
-        }).then(response => {
+        }).then(_ => {
             //console.log(response.data)
             window.location.href = "/home"
         }).catch(err => {
@@ -154,3 +154,4 @@ export default function Create() {
         </>
   );
 }
+export default Create;

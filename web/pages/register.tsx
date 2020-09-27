@@ -1,5 +1,6 @@
 import { useForm } from "react-hook-form";
-import React from "react";
+import React, { useContext, useEffect } from "react";
+import { useRouter } from 'next/router'
 import {
   FormErrorMessage,
   FormLabel,
@@ -12,11 +13,18 @@ import {
 } from "@chakra-ui/core";
 import axios from '../utils/axios'
 import NextLink from 'next/link'
-import Header from  '../components/header'
-  
- const Register: React.FC = () => {
+import LandingHeader from  '../components/LandingHeader'
+import { NextPage } from "next";
+import {UserContext } from '../utils/me'
+ const Register: NextPage = () => {
   const { handleSubmit, errors, register, formState } = useForm();
-
+  const user = useContext(UserContext);
+  const router = useRouter();
+  useEffect(() => {
+    if (user.auth === true) {
+      router.push('/home');
+    }
+  })
   function validateName(value: string) {
     let error;
     if (!value) {
@@ -57,7 +65,7 @@ import Header from  '../components/header'
 
   return (
     <>
-    <Header/>
+    <LandingHeader/>
     <Box mt={8} mx='auto' maxW={"500px"} w={"100%"} mb={8}>
                               <Heading>Register</Heading>
     <form onSubmit={handleSubmit(onSubmit)}>

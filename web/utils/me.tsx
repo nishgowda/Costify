@@ -1,11 +1,7 @@
 import React, { createContext, useEffect, useState } from 'react';
 import axios from './axios'
+import { User} from '../types/user'
 
-interface User{
-    uid: number,
-    name: string,
-    auth: boolean
-};
 const fakeUser: User = {
     uid: 0,
     name: '',
