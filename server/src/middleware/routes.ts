@@ -1,23 +1,21 @@
 import express from 'express';
 import { Request, Response, Application } from 'express';
-import { CostifyUser } from '../types/User'
 import { __prod__} from '../constants' 
 import cors from 'cors';
 require('dotenv').config();
 const app = express();
 app.use(express.json());
+app.set('trust proxy', 1);
 app.use(cors({
-    origin: __prod__ == true ? process.env.FRONT_END_URL : "http://localhost:4001",
+    origin: __prod__  ? process.env.CORS : "http://localhost:4001",
     credentials: true
 }));
 import client from '../utils/db';
-import passport from 'passport';
+import bcrypt from 'bcrypt';
 import redis from 'redis';
 import session from 'express-session';
 const RedisStore = require('connect-redis')(session)
-const redisClient = __prod__ === true ? redis.createClient({ url: process.env.REDIS_URL }) : redis.createClient();
-require('./pass');
-
+const redisClient = __prod__ ? redis.createClient({ url: process.env.REDIS_URL }) : redis.createClient();
 
 
 module.exports =  (app: Application) => {
@@ -31,33 +29,54 @@ module.exports =  (app: Application) => {
             cookie: {
                 maxAge: 1000 * 60 * 60 * 24 * 7, // One week
                 httpOnly: true,
-                sameSite: 'lax',
-                secure: __prod__ === true ? true :  false, //cookie only works in https
+                secure: __prod__ ? true: false,
+                domain: __prod__ ? process.env.DOMAIN : 'localhost',
+                sameSite: 'lax'
             },
-            secret: process.env.SESSION_SECRET || 'blah',
-            resave: false,
+            secret: process.env.SESSION_SECRET || 'foo',
+            resave: true,
+            proxy: true,
             saveUninitialized: false
         
       })
     )
 
-    app.use(passport.initialize())
-    app.use(passport.session())
     
-    app.post('/register', passport.authenticate('register', { failureMessage: "Failed to Register" }), async (req: Request, res: Response) => {
+    app.post('/register', async (req: Request, res: Response) => {
         try {
-            const user = req.user as CostifyUser;
-            client.query('update users set name=$1 where email=$2', [req.body.name,user.email ], (err, _) => {
-                if (err) throw err;
-                res.status(200).send("Authorized");
-            })
+            const insert = await client.query('select * from users where email=$1', [req.body.email]);
+            if (insert.rowCount > 0) {
+                res.status(500).send("Email is taken")
+            } else {
+                bcrypt.hash(req.body.password, 10).then(hashedPassword => {
+                    client.query('insert into users(email, name, password) values($1, $2, $3) returning *', [req.body.email, req.body.name, hashedPassword], (_, result) => {
+                        
+                        req.session!.userId = result.rows[0].uid;
+                        console.log(req.session!.userId)
+                        res.status(200).send("Authorized");
+                    });
+                })
+            }
         } catch (error) {
             throw error;
         }
     })
-    app.post('/login', passport.authenticate('login', { failureMessage: "Failed to Login" }), async (_: Request, res: Response) => {
+    //@ts-ignore
+    app.post('/login', async (req: Request, res: Response) => {
         try {
-            res.status(200).send("Authorized");
+            const user = await client.query('select * from users where email =$1', [req.body.email]);
+            if (user.rowCount < 1) {
+                return res.status(500).send("Bad Eamil");
+            } else {
+                bcrypt.compare(req.body.password, user.rows[0].password).then(response => {
+                    if (!response) {
+                        return res.status(500).send("Bad Password");
+                    }
+                    req.session!.userId = user.rows[0].uid;
+                    console.log("SESSION:", req.session!.userId)
+                    return res.status(200).send("Authorized");
+                });
+            }
         } catch (error) {
             throw error;
         }
@@ -65,8 +84,7 @@ module.exports =  (app: Application) => {
     
     app.get('/logout', (req:Request , res: Response) => {
         req.session = undefined;
-        res.clearCookie(process.env.COOKIE_NAME || 'sid', {httpOnly: true, sameSite: 'lax',})
-        req.logout();
+        res.clearCookie(process.env.COOKIE_NAME || 'foo', { httpOnly: true, sameSite: 'lax', domain: process.env.DOMAIN, });
         res.status(200).send('Logged Out')
     })
 }

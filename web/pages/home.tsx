@@ -55,7 +55,7 @@ const Home: NextPage<Jobs> = ({ jobs }) => {
             <Button mx='auto' leftIcon="add" variantColor="blue">Create an Alert</Button>
             </NextLink>
         </Flex>
-        {jobs.length !== 0 ?
+        {jobs !== undefined ?
           <Stack spacing={8}>
             {jobs.slice(0, page * itemsPerPage).map((item: Alert) => (
               <Box mt={3} key={item.jid} p={5} shadow="md" borderWidth="1px">
@@ -126,12 +126,12 @@ const Home: NextPage<Jobs> = ({ jobs }) => {
 Home.getInitialProps = async (ctx: any) => {
   try {
     const response = await axios({
-      method: 'get',
+      method: 'GET',
       url: '/v1/me/jobs',
-      headers: ctx.req ? {
-          cookie: ctx.req.headers.cookie,
-          'Content-Type': 'application/json',
-      } : undefined,
+      headers: {
+        'Content-Type': 'application/json',
+         cookie: ctx.req ? ctx.req.headers.cookie : undefined,
+      },
       withCredentials: true,
     })
     return {
@@ -139,7 +139,7 @@ Home.getInitialProps = async (ctx: any) => {
     }
   } catch (error) {
     return {
-      jobs: []
+      jobs: undefined
     }
 
   }

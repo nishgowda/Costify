@@ -73,7 +73,6 @@ const Create : NextPage = () => {
         },
         withCredentials: true,
         }).then(_ => {
-            //console.log(response.data)
             window.location.href = "/home"
         }).catch(err => {
         console.log(err);

@@ -15,8 +15,7 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.checkPrice = void 0;
 const nightmare_1 = __importDefault(require("nightmare"));
 const nightmare = new nightmare_1.default();
-const { default: Axios } = require('axios');
-const nodemailer_1 = __importDefault(require("nodemailer"));
+const axios_1 = __importDefault(require("axios"));
 const db_1 = __importDefault(require("../utils/db"));
 const path_1 = __importDefault(require("path"));
 const price_finder_1 = __importDefault(require("price-finder"));
@@ -24,6 +23,8 @@ const priceFinder = new price_finder_1.default();
 require('dotenv').config({
     path: path_1.default.resolve(__dirname, '../.env')
 });
+const mail_1 = __importDefault(require("@sendgrid/mail"));
+mail_1.default.setApiKey(process.env.SENDGRID_KEY);
 exports.checkPrice = (website, product, price, email, jid) => __awaiter(void 0, void 0, void 0, function* () {
     try {
         let priceString;
@@ -32,7 +33,7 @@ exports.checkPrice = (website, product, price, email, jid) => __awaiter(void 0, 
         switch (website) {
             case 'godaddy':
                 let baseUrl = 'https://api.ote-godaddy.com';
-                const response = yield Axios.get(baseUrl + `/v1/domains/available?domain=${product}&checkType=FAST&forTransfer=false"`, {
+                const response = yield axios_1.default.get(baseUrl + `/v1/domains/available?domain=${product}&checkType=FAST&forTransfer=false"`, {
                     headers: {
                         "Content-Type": "application/json",
                         "Authorization": `sso-key ${process.env.GODADDY_KEY + ':' + process.env.GODADDY_SECRET}`
@@ -96,7 +97,7 @@ const sendSuccess = (website, email, priceNumber, price, product, jid) => __awai
     try {
         if (priceNumber < price) {
             let subject = 'Your item is on sale now!';
-            let body = `The price for ${product} is less than $${price}!  Now at: $` + priceNumber + ` at ${website}.com`;
+            let body = `The price for ${product} is less than $${price}! It's now at: $` + priceNumber + ` at https://${website}.com`;
             yield sendMail(email, subject, body);
             yield db_1.default.query("update jobs set status=$1 where jid=$2", ['completed', jid]);
         }
@@ -107,7 +108,7 @@ const sendSuccess = (website, email, priceNumber, price, product, jid) => __awai
 });
 const sendError = (error) => __awaiter(void 0, void 0, void 0, function* () {
     try {
-        yield sendMail('"PingMe" <no-reply@pingme.com>', 'There was an error sending mail', error);
+        yield sendMail('support@costify.ga', 'There was an error sending mail', error);
     }
     catch (err) {
         throw err;
@@ -115,25 +116,20 @@ const sendError = (error) => __awaiter(void 0, void 0, void 0, function* () {
 });
 const sendMail = (user, subject, body) => __awaiter(void 0, void 0, void 0, function* () {
     try {
-        let testAccount = yield nodemailer_1.default.createTestAccount();
-        let transporter = nodemailer_1.default.createTransport({
-            host: "smtp.ethereal.email", port: 587, secure: false,
-            auth: {
-                user: testAccount.user,
-                pass: testAccount.pass,
-            }
-        });
-        let info = yield transporter.sendMail({
-            from: '"PingMe" <no-reply@pingme.com>',
+        const message = {
             to: user,
+            from: 'support@costify.ga',
             subject: subject,
-            text: body,
+            text: body
+        };
+        mail_1.default.send(message).then(() => {
+            console.log("Message Sent");
+        }).catch((err) => {
+            throw err;
         });
-        console.log("Message sent: %s", info.messageId);
-        console.log("Preview URL: %s", nodemailer_1.default.getTestMessageUrl(info));
     }
     catch (error) {
-        console.log(error);
+        throw error;
     }
 });
 //# sourceMappingURL=parser.js.map

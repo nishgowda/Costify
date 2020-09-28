@@ -9,12 +9,12 @@ import {
     AccordionHeader,
     AccordionPanel,
     AccordionIcon,
-    Link
+    Link,
 }
 from '@chakra-ui/core'
 import { NextPage } from 'next'
 import FadeIn from 'react-fade-in';
-
+import Footer from '../components/footer'
 const Faq: NextPage = () => {
   return ( 
     <>
@@ -62,12 +62,13 @@ const Faq: NextPage = () => {
                     </AccordionHeader>
                     <AccordionPanel pb={2}>
                                 If you have any questions, feel free to email us at 
-                                <Link href="mailto:support@tweetcode.ml"> support@tweetcode.ml </Link>
+                                <Link href="mailto:support@costify.ga"> support@costify.ga</Link>
                     </AccordionPanel>
                 </AccordionItem>
                 </Accordion>
                 </Flex>
               </Box>
+              <Footer/>
               </FadeIn>
       </>
   )

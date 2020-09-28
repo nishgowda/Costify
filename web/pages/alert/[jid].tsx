@@ -202,10 +202,10 @@ Show.getInitialProps = async (ctx: any) => {
     const response = await axios({
       method: 'get',
       url: `/v1/jobs/${ctx.query.jid}`,
-      headers: ctx.req ? {
-        cookie: ctx.req.headers.cookie,
+      headers: {
         'Content-Type': 'application/json',
-      } : undefined,
+        cookie: ctx.req ? ctx.req.headers.cookie : undefined,
+      },
       withCredentials: true,
     })
     return {

@@ -1,9 +1,9 @@
-import { Box, Flex, Button, Heading, Image, Text, Divider,Grid } from '@chakra-ui/core'
+import { Box, Flex, Button, Image, Text, Divider,Grid } from '@chakra-ui/core'
 import LandingHeader from '../components/LandingHeader';
 import NextLink from 'next/link';
 import { NextPage } from 'next'
 import FadeIn from 'react-fade-in';
-
+import Footer from '../components/footer'
 
 const IndexPage: NextPage = () => {
   return (
@@ -69,17 +69,7 @@ const IndexPage: NextPage = () => {
           </Box>
         </Flex>
         <Divider />
-        <Flex mt={8} align="center">
-          <Box mx='auto'>
-            <Text fontWeight="bold" fontSize="4xl">Create alerts easily</Text>
-          </Box>
-          <Box mx='auto'>
-              <Image src='/Example.gif' alt='example' objectFit='contain' ></Image>
-          </Box>
-        </Flex>
-        
-        <Divider />
- 
+         <Footer/>
         </FadeIn>
     </>
   );

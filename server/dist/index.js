@@ -10,11 +10,12 @@ const constants_1 = require("./constants");
 require('dotenv').config();
 const app = express_1.default();
 app.use(express_1.default.json());
+app.set('trust proxy', 1);
+console.log(process.env.CORS);
 app.use(cors_1.default({
-    origin: constants_1.__prod__ == true ? process.env.FRONTEND_URL : "http://localhost:4001",
+    origin: constants_1.__prod__ ? process.env.CORS : "http://localhost:4001",
     credentials: true
 }));
-require('./middleware/pass');
 require('./middleware/routes')(app);
 require('./api/alerts')(app);
 require('./api/users')(app);

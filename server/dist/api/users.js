@@ -15,14 +15,16 @@ Object.defineProperty(exports, "__esModule", { value: true });
 const express_1 = __importDefault(require("express"));
 const cors_1 = __importDefault(require("cors"));
 const db_1 = __importDefault(require("../utils/db"));
-const app = express_1.default();
-app.use(express_1.default.json());
-app.use(cors_1.default({
-    origin: "http://localhost:3000",
-    credentials: true
-}));
+const constants_1 = require("../constants");
 const verify_1 = require("../middleware/verify");
 require('dotenv').config();
+const app = express_1.default();
+app.use(express_1.default.json());
+app.set('trust proxy', 1);
+app.use(cors_1.default({
+    origin: constants_1.__prod__ ? process.env.CORS : "http://localhost:4001",
+    credentials: true
+}));
 module.exports = (app) => {
     app.get('/v1/users', verify_1.isAuthenticated, (_, res) => __awaiter(void 0, void 0, void 0, function* () {
         try {
@@ -44,8 +46,7 @@ module.exports = (app) => {
     }));
     app.get('/v1/user/me', verify_1.isAuthenticated, (req, res) => __awaiter(void 0, void 0, void 0, function* () {
         try {
-            const user = req.user;
-            const result = yield db_1.default.query('select * from users where uid=$1', [user.uid]);
+            const result = yield db_1.default.query('select * from users where uid=$1', [req.session.userId]);
             res.status(200).send(result.rows[0]);
         }
         catch (error) {

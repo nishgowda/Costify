@@ -1,16 +1,18 @@
 import Nighmare from 'nightmare';
 const nightmare = new Nighmare();
-const {default: Axios} = require('axios');
-import nodemailer from 'nodemailer';
+import Axios from 'axios';
 import client from '../utils/db'
 import path from 'path'
 //@ts-ignore
 import PriceFinder from 'price-finder';
 const priceFinder = new PriceFinder();
 
+
 require('dotenv').config({
     path: path.resolve(__dirname, '../.env')
 });
+import sgMail from '@sendgrid/mail';
+sgMail.setApiKey(process.env.SENDGRID_KEY!);
 
 export const checkPrice = async (website: string, product: string, price: number, email: string, jid:number) => {
     try {
@@ -83,7 +85,7 @@ const sendSuccess = async (website: string, email: string, priceNumber: number, 
     try {
         if (priceNumber < price) {
             let subject = 'Your item is on sale now!';
-            let body = `The price for ${product} is less than $${price}!  Now at: $` + priceNumber + ` at ${website}.com`;
+            let body = `The price for ${product} is less than $${price}! It's now at: $` + priceNumber + ` at https://${website}.com`;
             await sendMail(email, subject, body);
             await client.query("update jobs set status=$1 where jid=$2", ['completed', jid]);
         }
@@ -95,7 +97,7 @@ const sendSuccess = async (website: string, email: string, priceNumber: number, 
 
 const sendError = async (error: any) => {
     try {
-        await sendMail('"PingMe" <no-reply@pingme.com>', 'There was an error sending mail', error);
+        await sendMail('support@costify.ga', 'There was an error sending mail', error as string);
     } catch (err) {
         throw err;
     }
@@ -103,28 +105,24 @@ const sendError = async (error: any) => {
 
 const sendMail = async (user: string, subject: string, body: string) => {
     try {
-        let testAccount = await nodemailer.createTestAccount();
-        let transporter = nodemailer.createTransport({
-            host: "smtp.ethereal.email", port: 587, secure: false, // true for 465, false for other ports
-            auth: {
-                user: testAccount.user, // generated ethereal user
-                pass: testAccount.pass, // generated ethereal password
-            }
+        const message = {
+            to: user,
+            from: 'support@costify.ga',
+            subject: subject,
+            text: body
+        }
+        sgMail.send(message).then(() => {
+            console.log("Message Sent");
+            
+        }).catch((err) => {
+            throw err;
         });
-        let info = await transporter.sendMail({
-            from: '"PingMe" <no-reply@pingme.com>', // sender address
-            to: user, // list of receivers
-            subject: subject, // Subject line
-            text: body, // plain text body
-        });
-        console.log("Message sent: %s", info.messageId);
-        // Message sent: <b658f8ca-6296-ccf4-8306-87d57a0b4321@example.com>
-        // Preview only available when sending through an Ethereal account
-        console.log("Preview URL: %s", nodemailer.getTestMessageUrl(info));
     } catch (error) {
-        console.log(error);
+        throw error;
     }
 }
+
+
 
 
 
