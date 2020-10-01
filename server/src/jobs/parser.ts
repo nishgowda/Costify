@@ -5,6 +5,7 @@ import client from '../utils/db'
 import path from 'path'
 //@ts-ignore
 import PriceFinder from 'price-finder';
+import { ScheduledTask} from 'node-cron'
 const priceFinder = new PriceFinder();
 
 
@@ -14,7 +15,7 @@ require('dotenv').config({
 import sgMail from '@sendgrid/mail';
 sgMail.setApiKey(process.env.SENDGRID_KEY!);
 
-export const checkPrice = async (website: string, product: string, price: number, email: string, jid:number) => {
+export const checkPrice = async (website: string, product: string, price: number, email: string, jid:number, task: ScheduledTask) => {
     try {
         let priceString;
         let priceNumber;
@@ -36,20 +37,20 @@ export const checkPrice = async (website: string, product: string, price: number
                     priceNumber = price + 1;
                 } else {
                     priceNumber = data.price / (Math.pow(10, 6));
-                } sendSuccess(website, email, priceNumber, price, product, jid);
+                } sendSuccess(website, email, priceNumber, price, product, jid, task);
                 break;
             case 'namecheap':
                 let url = `https://www.namecheap.com/domains/registration/results/?domain=${product}`;
                 priceString = await nightmare.goto(url).wait("div [class='price'] strong").evaluate(() => document.querySelector("div [class='price'] strong")!.innerHTML).end();
                 priceNumber = parseFloat((priceString as unknown as string).replace('$', ''));
-                sendSuccess(website, email, priceNumber, price, product, jid);
+                sendSuccess(website, email, priceNumber, price, product, jid, task);
                 break;
             case 'amazon':
                 priceFinder.findItemPrice(product, (err: any, result: any) => {
                     if (err) {
                         sendError(err);
                     }
-                    sendSuccess(website, email, result, price, product, jid);
+                    sendSuccess(website, email, result, price, product, jid, task);
                 });
                 break;
             case 'steam':
@@ -57,20 +58,20 @@ export const checkPrice = async (website: string, product: string, price: number
                     if (err) {
                         sendError(err);
                     }
-                    sendSuccess(website, email, result, price, product, jid);
+                    sendSuccess(website, email, result, price, product, jid, task);
                 });
                 break;
             case 'craigslist':
                 priceString = await nightmare.goto(product).wait("span [class='price']").evaluate(() => document.querySelector("span [class='price']")!.innerHTML).end();
                 priceNumber = parseFloat((priceString as unknown as string).replace('$', ''));
-                sendSuccess(website, email, priceNumber, price, product, jid);
+                sendSuccess(website, email, priceNumber, price, product, jid, task);
                 break;
             case 'wallmart':
                 priceFinder.findItemPrice(product, (err: any, result: any) => {
                     if (err) {
                         sendError(err);
                     }
-                    sendSuccess(website, email, result, price, product, jid);
+                    sendSuccess(website, email, result, price, product, jid, task);
                 })
                 break;
             default:
@@ -81,13 +82,16 @@ export const checkPrice = async (website: string, product: string, price: number
         await sendError(error);
     }
 }
-const sendSuccess = async (website: string, email: string, priceNumber: number, price: number, product: string, jid: number) => {
+const sendSuccess = async (website: string, email: string, priceNumber: number, price: number, product: string, jid: number, task: ScheduledTask) => {
     try {
         if (priceNumber < price) {
             let subject = 'Your item is on sale now!';
             let body = `The price for ${product} is less than $${price}! It's now at: $` + priceNumber + ` at https://${website}.com`;
             await sendMail(email, subject, body);
             await client.query("update jobs set status=$1 where jid=$2", ['completed', jid]);
+            console.log('completed');
+            task.stop();
+            console.log('removed task', task.getStatus())
         }
     } catch (error) {
         throw error;

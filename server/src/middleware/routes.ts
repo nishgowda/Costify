@@ -46,13 +46,12 @@ module.exports =  (app: Application) => {
         try {
             const insert = await client.query('select * from users where email=$1', [req.body.email]);
             if (insert.rowCount > 0) {
-                res.status(500).send("Email is taken")
+                res.status(400).send("Email is taken")
             } else {
                 bcrypt.hash(req.body.password, 10).then(hashedPassword => {
                     client.query('insert into users(email, name, password) values($1, $2, $3) returning *', [req.body.email, req.body.name, hashedPassword], (_, result) => {
                         
                         req.session!.userId = result.rows[0].uid;
-                        console.log(req.session!.userId)
                         res.status(200).send("Authorized");
                     });
                 })
@@ -61,21 +60,18 @@ module.exports =  (app: Application) => {
             throw error;
         }
     })
-    //@ts-ignore
     app.post('/login', async (req: Request, res: Response) => {
         try {
             const user = await client.query('select * from users where email =$1', [req.body.email]);
             if (user.rowCount < 1) {
-                return res.status(500).send("Bad Eamil");
+                return res.status(400).send("Bad Eamil");
             } else {
-                bcrypt.compare(req.body.password, user.rows[0].password).then(response => {
+               const response = await bcrypt.compare(req.body.password, user.rows[0].password)
                     if (!response) {
-                        return res.status(500).send("Bad Password");
+                        return res.status(400).send("Bad Password");
                     }
                     req.session!.userId = user.rows[0].uid;
-                    console.log("SESSION:", req.session!.userId)
                     return res.status(200).send("Authorized");
-                });
             }
         } catch (error) {
             throw error;
@@ -84,7 +80,7 @@ module.exports =  (app: Application) => {
     
     app.get('/logout', (req:Request , res: Response) => {
         req.session = undefined;
-        res.clearCookie(process.env.COOKIE_NAME || 'foo', { httpOnly: true, sameSite: 'lax', domain: process.env.DOMAIN, });
+        res.clearCookie(process.env.COOKIE_NAME || 'sid', { httpOnly: true, sameSite: 'lax', domain: __prod__ ? process.env.DOMAIN : 'localhost' });
         res.status(200).send('Logged Out')
     })
 }

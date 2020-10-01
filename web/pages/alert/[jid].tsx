@@ -52,17 +52,19 @@ const Show: NextPage<Job> = ({ job }) => {
     }
     function validateProduct(value: string) {
       let error;
-      const itemsToCheck = ['https://amazon.com/', 'https://store.steampowered.com/app/', '.craigslist.org']
-        if (!value) {
-        error = "Product is required";
-        }
-        if (website === 'amazon' || website === 'steam' || 'craigslist') {
-          const items = itemsToCheck.some(item => value.includes(item));
-          if (!items) {
-            error = 'A proper url for this website is required';
-          }
-        }
-        return error || true;
+      if (!value) {
+      error = "Product is required";
+      }
+    const itemsToCheck = ['https://amazon.com/', 'https://www.amazon.com/', 'https://store.steampowered.com/app/', '.craigslist.org']
+    if (website === 'amazon' || website === 'steam' || website === 'craigslist') {
+      console.log('what')
+      const items = itemsToCheck.some(item => value.includes(item));
+      console.log(items);
+      if (items === false) {
+        error = 'A proper url for this website is required';
+      }
+    }
+     return error || true;
     }
   
     function validatePrice(value: number) {
@@ -72,10 +74,7 @@ const Show: NextPage<Job> = ({ job }) => {
         } 
         return error || true;
     }
-  const handleWebsite = (e: React.ChangeEvent<HTMLSelectElement>) => {
-    e.preventDefault();
-    setWebsite(website)
-  }
+
 
   function onSubmit(values: any) {
 
@@ -109,7 +108,7 @@ const Show: NextPage<Job> = ({ job }) => {
         <Select
               name="website"
                 autoComplete="website"
-                onChange={handleWebsite}
+                onChange={(e) => setWebsite(e.target.value)}
                 ref={register({ validate: validateWebsite })}>
                 {
                   websites.map((site, index) => 

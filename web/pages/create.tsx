@@ -20,7 +20,8 @@ import axios from '../utils/axios'
 import { UserContext } from '../utils/me'
 import Header from '../components/header'
 import NextLink from 'next/link'
-import { NextPage } from 'next'
+import { NextPage } from 'next';
+
 const Create : NextPage = () => {
   const { handleSubmit, errors, register, formState } = useForm();
     const user = useContext(UserContext)
@@ -39,11 +40,13 @@ const Create : NextPage = () => {
         if (!value) {
         error = "Product is required";
         }
-      if (value === 'amazon' || value === 'steam' || value === 'wallmart') {
+      console.log(website);
+      if (website === 'amazon' || website === 'steam' || website === 'wallmart') {
         setUrl(true)
       }
-      const itemsToCheck = ['https://amazon.com/','https://www.amazon.com/', 'https://store.steampowered.com/app/', '.craigslist.org']
-      if (website === 'amazon' || website === 'steam' || 'craigslist') {
+      const itemsToCheck = ['https://amazon.com/', 'https://www.amazon.com/', 'https://store.steampowered.com/app/', '.craigslist.org']
+      if (website === 'amazon' || website === 'steam' || website === 'craigslist') {
+        console.log('what')
         const items = itemsToCheck.some(item => value.includes(item));
         console.log(items);
         if (items === false) {
@@ -59,13 +62,8 @@ const Create : NextPage = () => {
         } 
         return error || true;
     }
-    const handleWebsite = (e: React.ChangeEvent<HTMLSelectElement>) => {
-      e.preventDefault();
-      setWebsite(website)
-    }
     function onSubmit(values: any) {
         values['uid'] = user.uid;
-        console.log(values);
         var data = JSON.stringify(values);
         axios.post('/v1/jobs', data, {
             headers: {
@@ -92,12 +90,13 @@ const Create : NextPage = () => {
       <FormControl isInvalid={errors.website} mt={3}>
               <FormLabel htmlFor="website">Website</FormLabel>
               <Select
-              name="website"
+                name="website"
                 autoComplete="website"
-                onChange={handleWebsite}
-              ref={register({ validate: validateWebsite })}>
+                onChange={(e) => setWebsite(e.target.value)}
+                ref={register({ validate: validateWebsite })}>
                 <option value="amazon">Amazon</option>
                 <option value="godaddy">Godaddy</option>
+                <option value="namecheap">Namecheap</option>
                 <option value="steam">Steam</option>
                 <option value="craigslist">Craigslist</option>
                 <option value="Wallmart">Wallmart</option>

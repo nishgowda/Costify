@@ -3,8 +3,8 @@ import cron from 'node-cron'
 import {checkPrice } from './parser'
 
 const Cron = (cronTime: string, website: string, domain: string, price: number, email:string, jid: number) => {
-    cron.schedule(cronTime, () => {
-        checkPrice(website, domain, price, email, jid)
+    var task = cron.schedule(cronTime, () => {
+        checkPrice(website, domain, price, email, jid, task)
     }, { scheduled: true });
 }
 
@@ -33,7 +33,7 @@ export const Job = cron.schedule(`* * * * *`, async () => {
         throw error;
     }
     
-})
+}, {scheduled: true})
 
 
 

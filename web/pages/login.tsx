@@ -54,9 +54,11 @@ import {UserContext } from '../utils/me'
         console.log(response.data)
         if (response.data === "Authorized") {
           window.location.href = "/home"
+        } else {
+          console.log(response.data);
         }
     }).catch(err => {
-      console.log(err);
+      alert(err.response.data);
     })
   }
 
@@ -98,10 +100,10 @@ import {UserContext } from '../utils/me'
                 </NextLink>
           </Box>
 
-      <Button
+          <Button
         mt={2}
         variantColor="blue"
-            isLoading={formState.isSubmitting}
+        isLoading={formState.isSubmitting}
         type="submit"
       >
         Login

@@ -2,7 +2,6 @@ import React from "react";
 import axios from '../../utils/axios'
 
 
-
 class Delete extends React.Component{
     static async getInitialProps(ctx: any) {
         const response = await axios({
@@ -20,11 +19,11 @@ class Delete extends React.Component{
       }
       
     redirect() {
-        window.location.href = '/home'
+      return window.location.href = '/home';
     }
       
       render() {
-          return <div>{this.redirect}</div>
+          return <div>{this.redirect()}</div>
       }
        
 }

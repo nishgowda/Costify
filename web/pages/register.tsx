@@ -64,7 +64,7 @@ import {UserContext } from '../utils/me'
           window.location.href = "/home"
         }
     }).catch(err => {
-      console.log(err);
+      alert(err.response.data);
     })
   }
 
